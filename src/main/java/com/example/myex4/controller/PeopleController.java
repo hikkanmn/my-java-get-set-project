@@ -1,40 +1,60 @@
 package com.example.myex4.controller;
 
 import com.example.myex4.entity.PeopleEntity;
+import com.example.myex4.repository.PeopleRepository;
 import org.springframework.web.bind.annotation.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
 public class PeopleController {
-    private final List<PeopleEntity> peopleList = new ArrayList<>();
 
-    // GET метод для получения всех данных
+    private final PeopleRepository peopleRepository;
+
+    public PeopleController(PeopleRepository peopleRepository) {
+        this.peopleRepository = peopleRepository;
+    }
+
+    // GET: Получить всех людей
     @GetMapping("/getPeople")
     public List<PeopleEntity> getPeople() {
-        return peopleList;
+        return peopleRepository.findAll();
     }
 
-    // POST метод для добавления нового объекта
+    // POST: Добавить человека
     @PostMapping("/addPerson")
     public String addPerson(@RequestBody PeopleEntity person) {
-        peopleList.add(person);
-        saveToFile(person);
-        return "Человек успешно добавлен в файл people.txt!";
+        // Сохранение объекта в MongoDB через репозиторий
+        peopleRepository.save(person);
+        return "Человек успешно добавлен!";
     }
 
-    // Метод для сохранения данных в текстовый файл
-    private void saveToFile(PeopleEntity person) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("people.txt", true))) {
-            writer.write("ID: " + person.getId() + ", Name: " + person.getName() +
-                    ", Age: " + person.getAge() + ", Gender: " + person.getGender() +
-                    ", Phone: " + person.getPhone() + "\n");
-        } catch (IOException e) {
-            e.printStackTrace();
+    // DELETE: Удалить человека по ID
+    @DeleteMapping("/deletePerson/{id}")
+    public String deletePerson(@PathVariable String id) {
+        if (peopleRepository.existsById(id)) {
+            peopleRepository.deleteById(id);
+            return "Человек успешно удалён!";
+        } else {
+            return "Человек с указанным ID не найден.";
         }
+    }
+
+    // GET: Найти человека по ID
+    @GetMapping("/getPerson/{id}")
+    public PeopleEntity getPersonById(@PathVariable String id) {
+        return peopleRepository.findById(id).orElse(null);
+    }
+
+    // GET: Найти человека по телефону
+    @GetMapping("/getPersonByPhone/{phone}")
+    public PeopleEntity getPersonByPhone(@PathVariable String phone) {
+        return peopleRepository.findByPhone(phone);
+    }
+
+    @GetMapping("/getPeopleByColor")
+    public List<PeopleEntity> getPeopleByColor(@RequestParam String color) {
+        return peopleRepository.findByFavColorsContaining(color);
     }
 }
