@@ -5,17 +5,24 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+//import java.util.List;
 
 @Getter
 @Setter
-@Document(collection = "people")
+@Document(collection = "students")
 public class PeopleEntity {
     @Id
+    // обязательные поля по заданию
     private String id;
     private String name;
-    private int age;
+    private String surname;
+    private String patronymic;
+    private String group;
+    private String educationForm;
+    private String dateOfAdmission;
+    // дополнительные 4 поля по заданию
+    private int studentCard;
+    private String dateOfBirth;
     private String gender;
     private String phone;
-    private List<String> favColors; // Составное поле
 }

@@ -4,7 +4,7 @@ import com.example.myex4.entity.PeopleEntity;
 import com.example.myex4.repository.PeopleRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+//import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
@@ -16,45 +16,53 @@ public class PeopleController {
         this.peopleRepository = peopleRepository;
     }
 
-    // GET: Получить всех людей
-    @GetMapping("/getPeople")
-    public List<PeopleEntity> getPeople() {
-        return peopleRepository.findAll();
-    }
-
-    // POST: Добавить человека
-    @PostMapping("/addPerson")
-    public String addPerson(@RequestBody PeopleEntity person) {
+    // POST : Добавить студента
+    // в postman заполнять через body -> raw
+    @PostMapping("/addStudent")
+    public String addPerson(@RequestBody PeopleEntity student) {
         // Сохранение объекта в MongoDB через репозиторий
-        peopleRepository.save(person);
-        return "Человек успешно добавлен!";
+        peopleRepository.save(student);
+        return "Данные успешно добавлены!";
     }
 
-    // DELETE: Удалить человека по ID
-    @DeleteMapping("/deletePerson/{id}")
+    // DELETE: Удалить студента по ID
+    @DeleteMapping("/deleteStudent/{id}")
     public String deletePerson(@PathVariable String id) {
         if (peopleRepository.existsById(id)) {
             peopleRepository.deleteById(id);
-            return "Человек успешно удалён!";
+            return "Даннные успешно удалены!";
         } else {
-            return "Человек с указанным ID не найден.";
+            return "Студент с указанным ID не найден.";
         }
     }
 
-    // GET: Найти человека по ID
-    @GetMapping("/getPerson/{id}")
-    public PeopleEntity getPersonById(@PathVariable String id) {
-        return peopleRepository.findById(id).orElse(null);
+    // PUT: Обновить данные о форме обучеения студента
+    // в postman заполнять через params
+    @PutMapping("/updateEducationForm/{id}")
+    public String updateEducationForm(@PathVariable String id, @RequestParam String educationForm) {
+        if (peopleRepository.existsById(id)) {
+            PeopleEntity student = peopleRepository.findById(id).orElse(null);
+            if (student != null) {
+                student.setEducationForm(educationForm);
+                peopleRepository.save(student);
+                return "Форма обучения успешно обновлена!";
+            } else {
+                return "Студент с указанным ID не найден.";
+            }
+        } else {
+            return "Студент с указанным ID не существует.";
+        }
     }
 
-    // GET: Найти человека по телефону
-    @GetMapping("/getPersonByPhone/{phone}")
-    public PeopleEntity getPersonByPhone(@PathVariable String phone) {
-        return peopleRepository.findByPhone(phone);
+    // GET: Найти студента по номеру студенсечкого билета
+    @GetMapping("/getStudentByStudentCard/{card}")
+    public PeopleEntity getStudentByStudentCard(@PathVariable int card) {
+        return peopleRepository.findByStudentCard(card);
     }
 
-    @GetMapping("/getPeopleByColor")
-    public List<PeopleEntity> getPeopleByColor(@RequestParam String color) {
-        return peopleRepository.findByFavColorsContaining(color);
+    // GET: Найти студента по группе
+    @GetMapping("/getStudentByGroup/{group}")
+    public PeopleEntity getStudentByGroup(@PathVariable String group) {
+        return peopleRepository.findByGroup(group);
     }
 }
